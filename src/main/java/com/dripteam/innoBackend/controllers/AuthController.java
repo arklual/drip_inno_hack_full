@@ -17,10 +17,12 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
-@CrossOrigin(origins = "*")
+
+
 @RestController
 @AllArgsConstructor
 @RequestMapping("/auth")
+@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true",originPatterns = "*")
 public class AuthController {
     private UserService service;
     private AppEmailService notification;

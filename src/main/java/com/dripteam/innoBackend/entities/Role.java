@@ -1,6 +1,6 @@
 package com.dripteam.innoBackend.entities;
 
-enum Role {
+public enum Role {
     EDITOR,
     OWNER
 }

@@ -9,14 +9,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Date;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
-@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/me")
 @AllArgsConstructor
+@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true",originPatterns = "*")
 public class MeController {
     private UserService auth;
     private ProjectService projects;
@@ -113,7 +111,15 @@ public class MeController {
         project.setDescription(request.getDescription());
         project.setCreator(user);
 
+
         projects.addProject(project);
+
+        MemberEntity member = new MemberEntity();
+        member.setProject(project);
+        member.setUser(user);
+        member.setRole(Role.OWNER);
+
+        projects.addMember(member);
 
         return ResponseEntity.status(HttpStatus.CREATED).body("");
     }
@@ -149,7 +155,7 @@ public class MeController {
     }
 
     @PutMapping("/project")
-    public  ResponseEntity<Object> update_project(@RequestBody ProjectChangeDataSchema request, @CookieValue(value = "Authorization", defaultValue = "None") String cookieValue){
+    public ResponseEntity<Object> update_project(@RequestBody ProjectChangeDataSchema request, @CookieValue(value = "Authorization", defaultValue = "None") String cookieValue) {
         if (cookieValue.equals("None")) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token!");
         }
@@ -175,11 +181,11 @@ public class MeController {
         }
         ProjectEntity project = maybe_project.get();
 
-        if(request.getDescription().isPresent()){
+        if (request.getDescription().isPresent()) {
             project.setDescription(request.getDescription().get());
         }
 
-        if (request.getName().isPresent()){
+        if (request.getName().isPresent()) {
             project.setName(request.getName().get());
         }
 
@@ -188,4 +194,43 @@ public class MeController {
         return ResponseEntity.ok("");
 
     }
+
+    @GetMapping("/project")
+    public ResponseEntity<Object> my_projects(@CookieValue(value = "Authorization", defaultValue = "None") String cookieValue) {
+        if (cookieValue.equals("None")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token!");
+        }
+
+        UUID id = auth.fromJwtToId(cookieValue);
+        Optional<UserEntity> maybe_user = auth.findUserById(id);
+
+        if (maybe_user.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User doesn`t exist!");
+        }
+
+        UserEntity user = maybe_user.get();
+        Date date = auth.fromJwtToTimeStamp(cookieValue);
+
+        if (new Date(user.getLastPasswordChange()).compareTo(date) >= 0) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token!");
+        }
+
+        List<ProjectEntity> all_projects = projects.findAll();
+        List<ProjectEntity> needed_projects = new ArrayList<>();
+        for (var project : all_projects) {
+            List<MemberEntity> members = projects.getMembersById(project.getId());
+            boolean find = false;
+            for (MemberEntity member : members) {
+                if (member.getUser().getId().equals(user.getId())) {
+                    find = true;
+                    break;
+                }
+            }
+            if (find) {
+                needed_projects.add(project);
+            }
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(needed_projects);
+    }
+
 }
