@@ -7,13 +7,14 @@ import java.util.UUID;
 
 @Entity
 @Data
+@Table(name = "desks")
 public class DeskEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
     private String title;
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "projectId", referencedColumnName = "id")
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "project_id", referencedColumnName = "id")
     private ProjectEntity project;
 
 }

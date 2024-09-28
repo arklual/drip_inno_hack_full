@@ -7,17 +7,22 @@ import java.util.UUID;
 
 @Data
 @Entity
+@Table(name = "task_changes")
 public class TaskChangeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "taskId", referencedColumnName = "id")
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "task_id", referencedColumnName = "id")
     private TaskEntity task;
 
+    @Column(name = "oldName")
     private String oldName;
+    @Column(name = "newName")
     private String newName;
+    @Column(name = "oldDescription")
     private String oldDescription;
+    @Column(name = "newDescription")
     private String newDescription;
 }

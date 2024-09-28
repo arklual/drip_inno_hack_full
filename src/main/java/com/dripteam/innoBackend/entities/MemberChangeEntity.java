@@ -8,23 +8,20 @@ import java.util.UUID;
 
 @Entity
 @Data
+@Table(name = "members_changes")
 public class MemberChangeEntity {
-    enum TypeOfChanging {
-        DELETE,
-        ADD,
-        UPDATE
-    }
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
     private TypeOfChanging typeOfChanging;
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "projectId", referencedColumnName = "id")
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "project_id", referencedColumnName = "id")
     private ProjectEntity project;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "userId", referencedColumnName = "id")
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
     private UserEntity user;
+
 
     private Role new_role;
     private Role old_role;

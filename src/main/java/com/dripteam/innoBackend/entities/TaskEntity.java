@@ -12,12 +12,16 @@ public class TaskEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
+    @Column(name = "name")
     private String name;
+    @Column(name = "description")
     private String description;
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "userId", referencedColumnName = "id")
+    @Enumerated(EnumType.ORDINAL)
+    private Status status;
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
     private UserEntity creator;
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "deskId", referencedColumnName = "id")
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "desk_id", referencedColumnName = "id")
     private DeskEntity desk;
 }

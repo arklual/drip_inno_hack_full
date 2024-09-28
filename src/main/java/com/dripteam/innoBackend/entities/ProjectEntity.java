@@ -11,11 +11,11 @@ public class ProjectEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
+    @Column(name = "name")
     private String name;
+    @Column(name = "description")
     private String description;
-    @Enumerated(EnumType.STRING)
-    private Status status;
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "creatorId", referencedColumnName = "id")
+    @JoinColumn(name = "creator_id", referencedColumnName = "id")
     private UserEntity creator;
 }

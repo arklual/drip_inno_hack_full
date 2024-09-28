@@ -7,15 +7,17 @@ import java.util.UUID;
 
 @Entity
 @Data
+@Table(name = "members")
 public class MemberEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "userId", referencedColumnName = "id")
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
     private UserEntity user;
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "projectId", referencedColumnName = "id")
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "project_id", referencedColumnName = "id")
     private ProjectEntity project;
+    @Enumerated(EnumType.ORDINAL)
     private Role role;
 }

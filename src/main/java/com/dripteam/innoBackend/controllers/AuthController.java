@@ -13,13 +13,11 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
+@CrossOrigin(origins = "*")
 @RestController
 @AllArgsConstructor
 @RequestMapping("/auth")
@@ -45,6 +43,8 @@ public class AuthController {
 
             Cookie cookie = new Cookie("Authorization", token);
             cookie.setPath("/");
+            cookie.setDomain("localhost");
+            cookie.setMaxAge(24*60*60*30);
             response.addCookie(cookie);
 
             return ResponseEntity.status(HttpStatus.OK).body(tokenResponse);
