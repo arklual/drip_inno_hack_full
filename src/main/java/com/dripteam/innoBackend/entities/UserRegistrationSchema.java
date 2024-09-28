@@ -4,5 +4,5 @@ import lombok.Data;
 
 @Data
 public class UserRegistrationSchema {
-    public String email;
+    private String email;
 }

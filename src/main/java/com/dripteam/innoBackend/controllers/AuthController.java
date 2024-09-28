@@ -57,7 +57,6 @@ public class AuthController {
         }
 
         String generatedPassword = userService.generateRandomPassword();
-//        System.out.println(generatedPassword);    дебаг
 
         UserEntity user = new UserEntity();
 

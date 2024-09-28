@@ -19,7 +19,7 @@ public class MeController {
     private ProjectService projectService;
 
     @GetMapping("/")
-    public ResponseEntity<Object> get_me(@RequestHeader(value = "Authorization", defaultValue = "None") String cookieValue) {
+    public ResponseEntity<Object> getMe(@RequestHeader(value = "Authorization", defaultValue = "None") String cookieValue) {
         if (cookieValue.equals("None")) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token!");
         }
@@ -42,7 +42,7 @@ public class MeController {
     }
 
     @PostMapping("/change-password")
-    public ResponseEntity<Object> change_password(@RequestBody UserChangePasswordSchema request, @RequestHeader(value = "Authorization", defaultValue = "None") String cookieValue) {
+    public ResponseEntity<Object> changePassword(@RequestBody UserChangePasswordSchema request, @RequestHeader(value = "Authorization", defaultValue = "None") String cookieValue) {
         if (cookieValue.equals("None")) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token!");
         }
@@ -72,7 +72,7 @@ public class MeController {
     }
 
     @PutMapping("/change-data")
-    public ResponseEntity<Object> change_data(@RequestBody UserChangeDataSchema request, @RequestHeader(value = "Authorization", defaultValue = "None") String cookieValue) {
+    public ResponseEntity<Object> changeData(@RequestBody UserChangeDataSchema request, @RequestHeader(value = "Authorization", defaultValue = "None") String cookieValue) {
         if (cookieValue.equals("None")) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token!");
         }
@@ -108,7 +108,7 @@ public class MeController {
     }
 
     @PostMapping("/project")
-    public ResponseEntity<Object> create_project(@RequestBody ProjectCreateSchema request, @RequestHeader(value = "Authorization", defaultValue = "None") String cookieValue) {
+    public ResponseEntity<Object> createProject(@RequestBody ProjectCreateSchema request, @RequestHeader(value = "Authorization", defaultValue = "None") String cookieValue) {
         if (cookieValue.equals("None")) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token!");
         }
@@ -146,7 +146,7 @@ public class MeController {
     }
 
     @DeleteMapping("/project")
-    public ResponseEntity<Object> delete_project(@RequestBody ProjectDeleteSchema request, @RequestHeader(value = "Authorization", defaultValue = "None") String cookieValue) {
+    public ResponseEntity<Object> deleteProject(@RequestBody ProjectDeleteSchema request, @RequestHeader(value = "Authorization", defaultValue = "None") String cookieValue) {
         if (cookieValue.equals("None")) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token!");
         }
@@ -176,7 +176,7 @@ public class MeController {
     }
 
     @PutMapping("/project")
-    public ResponseEntity<Object> update_project(@RequestBody ProjectChangeDataSchema request, @RequestHeader(value = "Authorization", defaultValue = "None") String cookieValue) {
+    public ResponseEntity<Object> updateProject(@RequestBody ProjectChangeDataSchema request, @RequestHeader(value = "Authorization", defaultValue = "None") String cookieValue) {
         if (cookieValue.equals("None")) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token!");
         }
@@ -217,7 +217,7 @@ public class MeController {
     }
 
     @GetMapping("/project")
-    public ResponseEntity<Object> my_projects(@RequestHeader(value = "Authorization", defaultValue = "None") String cookieValue) {
+    public ResponseEntity<Object> myProjects(@RequestHeader(value = "Authorization", defaultValue = "None") String cookieValue) {
         if (cookieValue.equals("None")) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token!");
         }

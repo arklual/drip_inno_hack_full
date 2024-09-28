@@ -23,7 +23,7 @@ public class DeskController {
     private ProjectService projectService;
 
     @PostMapping("/")
-    public ResponseEntity<Object> create_desk(@RequestBody DeskCreateSchema request, @RequestHeader(value = "Authorization",defaultValue = "None") String cookieValue) {
+    public ResponseEntity<Object> createDesk(@RequestBody DeskCreateSchema request, @RequestHeader(value = "Authorization",defaultValue = "None") String cookieValue) {
         if (cookieValue.equals("None")) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token!");
         }
@@ -54,7 +54,7 @@ public class DeskController {
     }
 
     @DeleteMapping("/")
-    public ResponseEntity<Object> delete_desk(@RequestBody DeskDeleteSchema request, @RequestHeader(value = "Authorization",defaultValue = "None") String cookieValue) {
+    public ResponseEntity<Object> deleteDesk(@RequestBody DeskDeleteSchema request, @RequestHeader(value = "Authorization",defaultValue = "None") String cookieValue) {
         if (cookieValue.equals("None")) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token!");
         }
@@ -86,7 +86,7 @@ public class DeskController {
     }
 
     @PutMapping("/")
-    public  ResponseEntity<Object> update_project(@RequestBody DeskChangeDataSchema request, @RequestHeader(value = "Authorization",defaultValue = "None") String cookieValue){
+    public  ResponseEntity<Object> updateProject(@RequestBody DeskChangeDataSchema request, @RequestHeader(value = "Authorization",defaultValue = "None") String cookieValue){
         if (cookieValue.equals("None")) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token!");
         }

@@ -5,6 +5,6 @@ import lombok.Data;
 
 @Data
 public class UserLoginSchema {
-    public String email;
-    public String password;
+    private String email;
+    private String password;
 }

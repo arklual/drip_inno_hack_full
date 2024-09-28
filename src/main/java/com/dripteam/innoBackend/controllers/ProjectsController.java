@@ -2,6 +2,7 @@ package com.dripteam.innoBackend.controllers;
 
 import com.dripteam.innoBackend.entities.*;
 import com.dripteam.innoBackend.services.AppEmailService;
+import com.dripteam.innoBackend.services.InvitationService;
 import com.dripteam.innoBackend.services.ProjectService;
 import com.dripteam.innoBackend.services.UserService;
 import lombok.AllArgsConstructor;
@@ -23,6 +24,7 @@ public class ProjectsController {
     private AppEmailService emailService;
     private ProjectService projectService;
     private UserService userService;
+    private InvitationService invitationService;
 
     @PostMapping("/invite/{project_id}")
     public ResponseEntity<Object> inviteToProject(@PathVariable String project_id, @RequestBody ProjectInviteSchema request, @RequestHeader(value = "Authorization", defaultValue = "None") String cookieValue) {
@@ -55,14 +57,30 @@ public class ProjectsController {
         if (!user.getId().equals(project.getCreator().getId())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Your not creator!");
         }
-        String link = "https://api:8080/projects/join/" + project_id;
+
+        Optional<UserEntity> maybe_getter = userService.findUserByEmail(request.getEmail());
+
+        if (maybe_getter.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Getter not found!");
+        }
+
+        UserEntity getter = maybe_getter.get();
+
+        InvitationEntity invitation = new InvitationEntity();
+        invitation.setUser(getter);
+        invitation.setProject(project);
+
+
+        invitationService.addInvitation(invitation);
+
+        String link = "https://localhost:5137/" + invitation.getId();
         emailService.sendSimpleEmail(request.getEmail(), "Invite link:", link);
 
         return ResponseEntity.ok("");
     }
 
-    @GetMapping("/join/{project_id}")
-    public ResponseEntity<Object> joinToProject(@PathVariable String project_id, @RequestHeader(value = "Authorization", defaultValue = "None") String cookieValue) {
+    @PostMapping("/apply-invite/{uuid}")
+    public ResponseEntity<Object> applyInvite(@PathVariable String uuid, @RequestHeader(value = "Authorization", defaultValue = "None") String cookieValue) {
         if (cookieValue.equals("None")) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token!");
         }
@@ -81,34 +99,23 @@ public class ProjectsController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token!");
         }
 
-        List<MemberEntity> members = projectService.getMembersById(UUID.fromString(project_id));
-        Optional<ProjectEntity> maybe_project = projectService.findProjectById(UUID.fromString(project_id));
+        Optional<InvitationEntity> maybe_invitation = invitationService.getById(UUID.fromString(uuid));
 
-        if (maybe_project.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Project not found!");
+        if (maybe_invitation.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Invitation not found!");
         }
 
-        ProjectEntity project = maybe_project.get();
+        InvitationEntity invitation = maybe_invitation.get();
 
-        boolean find = false;
+        MemberEntity member = new MemberEntity();
+        member.setRole(Role.EDITOR);
+        member.setProject(invitation.getProject());
+        member.setUser(invitation.getUser());
 
-        for (MemberEntity member : members) {
-            if (member.getUser().getId().equals(user.getId())) {
-                find = true;
-                break;
-            }
-        }
+        projectService.addMember(member);
+        invitationService.deleteInvitation(invitation);
 
-        if (!find) {
-            MemberEntity new_member = new MemberEntity();
-            new_member.setRole(Role.EDITOR);
-            new_member.setUser(user);
-            new_member.setProject(project);
-            projectService.addMember(new_member);
-        }
-
-        return ResponseEntity.ok("Added!");
-
+        return ResponseEntity.status(HttpStatus.CREATED).body(member);
     }
 
     @DeleteMapping("/remove/{project_id}")
@@ -149,7 +156,7 @@ public class ProjectsController {
     }
 
     @GetMapping("/{project_id}")
-    public ResponseEntity<Object> getProject(@PathVariable String project_id, @RequestHeader(value = "Authorization", defaultValue = "None") String cookieValue){
+    public ResponseEntity<Object> getProject(@PathVariable String project_id, @RequestHeader(value = "Authorization", defaultValue = "None") String cookieValue) {
         if (cookieValue.equals("None")) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token!");
         }
@@ -171,12 +178,12 @@ public class ProjectsController {
         List<DeskEntity> desks = projectService.getDesksById(UUID.fromString(project_id));
         List<MemberEntity> members = projectService.getMembersById(UUID.fromString(project_id));
 
-        if (maybe_project.isEmpty()){
+        if (maybe_project.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Project not found!");
         }
         ProjectEntity project = maybe_project.get();
         @Data
-        class Schema{
+        class Schema {
             public UUID id;
             public String name;
             public String description;
@@ -194,7 +201,6 @@ public class ProjectsController {
 
         return ResponseEntity.ok(response);
     }
-
 
 
 }

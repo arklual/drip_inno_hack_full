@@ -4,5 +4,5 @@ import lombok.Data;
 
 @Data
 public class ProjectDeleteSchema {
-    public String project_id;
+    private String project_id;
 }

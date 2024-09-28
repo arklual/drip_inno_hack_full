@@ -24,7 +24,7 @@ public class TaskController {
     private AppEmailService emailService;
 
     @PostMapping("/")
-    public ResponseEntity<Object> create_task(@RequestBody TaskCreateSchema request, @RequestHeader(value = "Authorization", defaultValue = "None") String cookieValue) {
+    public ResponseEntity<Object> createTask(@RequestBody TaskCreateSchema request, @RequestHeader(value = "Authorization", defaultValue = "None") String cookieValue) {
         if (cookieValue.equals("None")) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token!");
         }
@@ -74,7 +74,7 @@ public class TaskController {
     }
 
     @DeleteMapping("/")
-    public ResponseEntity<Object> delete_task(@RequestBody TaskDeleteSchema request, @RequestHeader(value = "Authorization", defaultValue = "None") String cookieValue) {
+    public ResponseEntity<Object> deleteTask(@RequestBody TaskDeleteSchema request, @RequestHeader(value = "Authorization", defaultValue = "None") String cookieValue) {
         if (cookieValue.equals("None")) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token!");
         }
@@ -106,7 +106,7 @@ public class TaskController {
         return ResponseEntity.ok("");
     }
 
-    public ResponseEntity<Object> update_task(@RequestBody TaskUpdateSchema request, @RequestHeader(value = "Authorization", defaultValue = "None") String cookieValue) {
+    public ResponseEntity<Object> updateTask(@RequestBody TaskUpdateSchema request, @RequestHeader(value = "Authorization", defaultValue = "None") String cookieValue) {
         if (cookieValue.equals("None")) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token!");
         }
