@@ -8,7 +8,6 @@ import com.dripteam.innoBackend.entities.UserTokenSchema;
 import com.dripteam.innoBackend.services.AppEmailService;
 import com.dripteam.innoBackend.services.UserService;
 
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -23,12 +22,12 @@ import java.util.Optional;
 @AllArgsConstructor
 @RequestMapping("/auth")
 public class AuthController {
-    private UserService service;
-    private AppEmailService notification;
+    private UserService userService;
+    private AppEmailService emailService;
 
     @PostMapping("/login")
     public ResponseEntity<Object> login(@RequestBody UserLoginSchema request, HttpServletResponse response) {
-        Optional<UserEntity> maybe_user = service.findUserByEmail(request.getEmail());
+        Optional<UserEntity> maybe_user = userService.findUserByEmail(request.getEmail());
 
         if (maybe_user.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User doesn`t exits!");
@@ -36,17 +35,13 @@ public class AuthController {
 
         UserEntity user = maybe_user.get();
 
-        if (user.getPassword().equals(service.hash(request.getPassword()))) {
+        if (user.getPassword().equals(userService.hash(request.getPassword()))) {
 
-            String token = service.fromDataToJwt(user.getId().toString());
+            String token = userService.fromDataToJwt(user.getId().toString());
             UserTokenSchema tokenResponse = new UserTokenSchema();
             tokenResponse.setToken(token);
 
-            Cookie cookie = new Cookie("Authorization", token);
-            cookie.setPath("/");
-            cookie.setDomain("localhost");
-            cookie.setMaxAge(24*60*60*30);
-            response.addCookie(cookie);
+            response.setHeader("Authorization",token);
 
             return ResponseEntity.status(HttpStatus.OK).body(tokenResponse);
         }
@@ -55,23 +50,23 @@ public class AuthController {
 
     @PostMapping("/registration")
     public ResponseEntity<Object> registration(@RequestBody UserRegistrationSchema request) {
-        Optional<UserEntity> maybe_user = service.findUserByEmail(request.getEmail());
+        Optional<UserEntity> maybe_user = userService.findUserByEmail(request.getEmail());
 
         if (maybe_user.isPresent()) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("User already exist!");
         }
 
-        String generatedPassword = service.generateRandomPassword();
+        String generatedPassword = userService.generateRandomPassword();
 //        System.out.println(generatedPassword);    дебаг
 
         UserEntity user = new UserEntity();
 
         user.setEmail(request.getEmail());
-        user.setPassword(service.hash(generatedPassword));
+        user.setPassword(userService.hash(generatedPassword));
         user.setLastPasswordChange(System.currentTimeMillis());
 
-        notification.sendSimpleEmail(user.getEmail(), "Password: ", generatedPassword);
-        service.addUser(user);
+        emailService.sendSimpleEmail(user.getEmail(), "Password: ", generatedPassword);
+        userService.addUser(user);
 
         return ResponseEntity.status(HttpStatus.CREATED).body("");
     }

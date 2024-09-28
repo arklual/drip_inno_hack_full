@@ -12,7 +12,7 @@ public class ProjectChangeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "project_id", referencedColumnName = "id")
     private ProjectEntity project;
 
@@ -25,11 +25,11 @@ public class ProjectChangeEntity {
     @Column(name = "old_description")
     private String old_description;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "oldUser_id", referencedColumnName = "id")
     private UserEntity old_user;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "newUser_id", referencedColumnName = "id")
     private UserEntity new_user;
 

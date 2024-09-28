@@ -19,24 +19,24 @@ import java.util.UUID;
 @AllArgsConstructor
 public class DeskController {
     private DeskService deskService;
-    private UserService auth;
+    private UserService userService;
     private ProjectService projectService;
 
     @PostMapping("/")
-    public ResponseEntity<Object> create_desk(@RequestBody DeskCreateSchema request, @CookieValue(value = "Authorization", defaultValue = "None") String cookieValue) {
+    public ResponseEntity<Object> create_desk(@RequestBody DeskCreateSchema request, @RequestHeader(value = "Authorization",defaultValue = "None") String cookieValue) {
         if (cookieValue.equals("None")) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token!");
         }
 
-        UUID id = auth.fromJwtToId(cookieValue);
-        Optional<UserEntity> maybe_user = auth.findUserById(id);
+        UUID id = userService.fromJwtToId(cookieValue);
+        Optional<UserEntity> maybe_user = userService.findUserById(id);
 
         if (maybe_user.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User doesn`t exist!");
         }
 
         UserEntity user = maybe_user.get();
-        Date date = auth.fromJwtToTimeStamp(cookieValue);
+        Date date = userService.fromJwtToTimeStamp(cookieValue);
 
         if (new Date(user.getLastPasswordChange()).compareTo(date) >= 0) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token!");
@@ -54,20 +54,20 @@ public class DeskController {
     }
 
     @DeleteMapping("/")
-    public ResponseEntity<Object> delete_desk(@RequestBody DeskDeleteSchema request, @CookieValue(value = "Authorization", defaultValue = "None") String cookieValue) {
+    public ResponseEntity<Object> delete_desk(@RequestBody DeskDeleteSchema request, @RequestHeader(value = "Authorization",defaultValue = "None") String cookieValue) {
         if (cookieValue.equals("None")) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token!");
         }
 
-        UUID id = auth.fromJwtToId(cookieValue);
-        Optional<UserEntity> maybe_user = auth.findUserById(id);
+        UUID id = userService.fromJwtToId(cookieValue);
+        Optional<UserEntity> maybe_user = userService.findUserById(id);
 
         if (maybe_user.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User doesn`t exist!");
         }
 
         UserEntity user = maybe_user.get();
-        Date date = auth.fromJwtToTimeStamp(cookieValue);
+        Date date = userService.fromJwtToTimeStamp(cookieValue);
 
         if (new Date(user.getLastPasswordChange()).compareTo(date) >= 0) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token!");
@@ -78,26 +78,28 @@ public class DeskController {
         if (maybe_desk.isEmpty()) {
             return ResponseEntity.ok("");
         }
-        deskService.deleteDesk(maybe_desk.get());
+
+        DeskEntity desk = maybe_desk.get();
+        deskService.deleteDesk(desk);
 
         return ResponseEntity.ok("");
     }
 
     @PutMapping("/")
-    public  ResponseEntity<Object> update_project(@RequestBody DeskChangeDataSchema request, @CookieValue(value = "Authorization", defaultValue = "None") String cookieValue){
+    public  ResponseEntity<Object> update_project(@RequestBody DeskChangeDataSchema request, @RequestHeader(value = "Authorization",defaultValue = "None") String cookieValue){
         if (cookieValue.equals("None")) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token!");
         }
 
-        UUID id = auth.fromJwtToId(cookieValue);
-        Optional<UserEntity> maybe_user = auth.findUserById(id);
+        UUID id = userService.fromJwtToId(cookieValue);
+        Optional<UserEntity> maybe_user = userService.findUserById(id);
 
         if (maybe_user.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User doesn`t exist!");
         }
 
         UserEntity user = maybe_user.get();
-        Date date = auth.fromJwtToTimeStamp(cookieValue);
+        Date date = userService.fromJwtToTimeStamp(cookieValue);
 
         if (new Date(user.getLastPasswordChange()).compareTo(date) >= 0) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token!");

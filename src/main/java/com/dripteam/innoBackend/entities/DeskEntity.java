@@ -13,7 +13,7 @@ public class DeskEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
     private String title;
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "project_id", referencedColumnName = "id")
     private ProjectEntity project;
 

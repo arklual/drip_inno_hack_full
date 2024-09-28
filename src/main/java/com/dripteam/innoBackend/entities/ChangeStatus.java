@@ -12,7 +12,7 @@ public class ChangeStatus {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "task_id", referencedColumnName = "id")
     private TaskEntity task;
 

@@ -1,6 +1,6 @@
 package com.dripteam.innoBackend.entities;
 
-enum TypeOfChanging {
+public enum TypeOfChanging {
     DELETE,
     ADD,
     UPDATE

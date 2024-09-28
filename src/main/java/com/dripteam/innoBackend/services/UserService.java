@@ -1,12 +1,12 @@
 package com.dripteam.innoBackend.services;
 
-
 import com.dripteam.innoBackend.entities.UserEntity;
 import com.dripteam.innoBackend.repositories.UserRepository;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import jakarta.transaction.Transactional;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,9 +21,10 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class UserService {
     @NonNull
-    private UserRepository repository;
+    private UserRepository userRepository;
 
     @Value("${jwt.secret}")
     private String secretKey;
@@ -34,15 +35,15 @@ public class UserService {
 
 
     public Optional<UserEntity> findUserById(UUID id) {
-        return repository.findById(id);
+        return userRepository.findById(id);
     }
 
     public Optional<UserEntity> findUserByEmail(String email) {
-        return repository.findUserEntityByEmail(email);
+        return userRepository.findUserEntityByEmail(email);
     }
 
     public UserEntity addUser(UserEntity user) {
-        repository.save(user);
+        userRepository.save(user);
         return user;
     }
 

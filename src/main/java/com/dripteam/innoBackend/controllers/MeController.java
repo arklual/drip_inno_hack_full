@@ -15,34 +15,56 @@ import java.util.*;
 @RequestMapping("/me")
 @AllArgsConstructor
 public class MeController {
-    private UserService auth;
-    private ProjectService projects;
+    private UserService userService;
+    private ProjectService projectService;
 
-
-    @PostMapping("/change-password")
-    public ResponseEntity<Object> change_password(@RequestBody UserChangePasswordSchema request, @CookieValue(value = "Authorization", defaultValue = "None") String cookieValue) {
+    @GetMapping("/")
+    public ResponseEntity<Object> get_me(@RequestHeader(value = "Authorization", defaultValue = "None") String cookieValue) {
         if (cookieValue.equals("None")) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token!");
         }
 
-        UUID id = auth.fromJwtToId(cookieValue);
-        Optional<UserEntity> maybe_user = auth.findUserById(id);
+        UUID id = userService.fromJwtToId(cookieValue);
+        Optional<UserEntity> maybe_user = userService.findUserById(id);
 
         if (maybe_user.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User doesn`t exist!");
         }
 
         UserEntity user = maybe_user.get();
-        Date date = auth.fromJwtToTimeStamp(cookieValue);
+        Date date = userService.fromJwtToTimeStamp(cookieValue);
 
         if (new Date(user.getLastPasswordChange()).compareTo(date) >= 0) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token!");
         }
 
-        if (user.getPassword().equals(auth.hash(request.getOld_password()))) {
-            user.setPassword(auth.hash(request.getNew_password()));
+        return ResponseEntity.ok(user);
+    }
+
+    @PostMapping("/change-password")
+    public ResponseEntity<Object> change_password(@RequestBody UserChangePasswordSchema request, @RequestHeader(value = "Authorization", defaultValue = "None") String cookieValue) {
+        if (cookieValue.equals("None")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token!");
+        }
+
+        UUID id = userService.fromJwtToId(cookieValue);
+        Optional<UserEntity> maybe_user = userService.findUserById(id);
+
+        if (maybe_user.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User doesn`t exist!");
+        }
+
+        UserEntity user = maybe_user.get();
+        Date date = userService.fromJwtToTimeStamp(cookieValue);
+
+        if (new Date(user.getLastPasswordChange()).compareTo(date) >= 0) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token!");
+        }
+
+        if (user.getPassword().equals(userService.hash(request.getOld_password()))) {
+            user.setPassword(userService.hash(request.getNew_password()));
             user.setLastPasswordChange(System.currentTimeMillis());
-            auth.addUser(user);
+            userService.addUser(user);
             return ResponseEntity.ok("");
         }
 
@@ -50,20 +72,20 @@ public class MeController {
     }
 
     @PutMapping("/change-data")
-    public ResponseEntity<Object> change_data(@RequestBody UserChangeDataSchema request, @CookieValue(value = "Authorization", defaultValue = "None") String cookieValue) {
+    public ResponseEntity<Object> change_data(@RequestBody UserChangeDataSchema request, @RequestHeader(value = "Authorization", defaultValue = "None") String cookieValue) {
         if (cookieValue.equals("None")) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token!");
         }
 
-        UUID id = auth.fromJwtToId(cookieValue);
-        Optional<UserEntity> maybe_user = auth.findUserById(id);
+        UUID id = userService.fromJwtToId(cookieValue);
+        Optional<UserEntity> maybe_user = userService.findUserById(id);
 
         if (maybe_user.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User doesn`t exist!");
         }
 
         UserEntity user = maybe_user.get();
-        Date date = auth.fromJwtToTimeStamp(cookieValue);
+        Date date = userService.fromJwtToTimeStamp(cookieValue);
 
         if (new Date(user.getLastPasswordChange()).compareTo(date) >= 0) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token!");
@@ -81,99 +103,99 @@ public class MeController {
             user.setBirthDate(request.getDate_of_birth().get());
         }
 
-        auth.addUser(user);
+        userService.addUser(user);
         return ResponseEntity.ok("");
     }
 
     @PostMapping("/project")
-    public ResponseEntity<Object> create_project(@RequestBody ProjectCreateSchema request, @CookieValue(value = "Authorization", defaultValue = "None") String cookieValue) {
+    public ResponseEntity<Object> create_project(@RequestBody ProjectCreateSchema request, @RequestHeader(value = "Authorization", defaultValue = "None") String cookieValue) {
         if (cookieValue.equals("None")) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token!");
         }
 
-        UUID id = auth.fromJwtToId(cookieValue);
-        Optional<UserEntity> maybe_user = auth.findUserById(id);
+        UUID id = userService.fromJwtToId(cookieValue);
+        Optional<UserEntity> maybe_user = userService.findUserById(id);
 
         if (maybe_user.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User doesn`t exist!");
         }
 
         UserEntity user = maybe_user.get();
-        Date date = auth.fromJwtToTimeStamp(cookieValue);
+        Date date = userService.fromJwtToTimeStamp(cookieValue);
 
         if (new Date(user.getLastPasswordChange()).compareTo(date) >= 0) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token!");
         }
 
         ProjectEntity project = new ProjectEntity();
+        MemberEntity member = new MemberEntity();
+
         project.setName(request.getName());
         project.setDescription(request.getDescription());
         project.setCreator(user);
 
+        projectService.addProject(project);
 
-        projects.addProject(project);
-
-        MemberEntity member = new MemberEntity();
         member.setProject(project);
         member.setUser(user);
         member.setRole(Role.OWNER);
 
-        projects.addMember(member);
+        projectService.addMember(member);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body("");
+        return ResponseEntity.status(HttpStatus.CREATED).body(project);
     }
 
     @DeleteMapping("/project")
-    public ResponseEntity<Object> delete_project(@RequestBody ProjectDeleteSchema request, @CookieValue(value = "Authorization", defaultValue = "None") String cookieValue) {
+    public ResponseEntity<Object> delete_project(@RequestBody ProjectDeleteSchema request, @RequestHeader(value = "Authorization", defaultValue = "None") String cookieValue) {
         if (cookieValue.equals("None")) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token!");
         }
 
-        UUID id = auth.fromJwtToId(cookieValue);
-        Optional<UserEntity> maybe_user = auth.findUserById(id);
+        UUID id = userService.fromJwtToId(cookieValue);
+        Optional<UserEntity> maybe_user = userService.findUserById(id);
 
         if (maybe_user.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User doesn`t exist!");
         }
 
         UserEntity user = maybe_user.get();
-        Date date = auth.fromJwtToTimeStamp(cookieValue);
+        Date date = userService.fromJwtToTimeStamp(cookieValue);
 
         if (new Date(user.getLastPasswordChange()).compareTo(date) >= 0) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token!");
         }
 
-        Optional<ProjectEntity> maybe_project = projects.findProjectById(UUID.fromString(request.getProject_id()));
+        Optional<ProjectEntity> maybe_project = projectService.findProjectById(UUID.fromString(request.getProject_id()));
 
         if (maybe_project.isEmpty()) {
             return ResponseEntity.ok("");
         }
-        projects.deleteProject(maybe_project.get());
+        projectService.deleteProject(maybe_project.get());
 
         return ResponseEntity.ok("");
     }
 
     @PutMapping("/project")
-    public ResponseEntity<Object> update_project(@RequestBody ProjectChangeDataSchema request, @CookieValue(value = "Authorization", defaultValue = "None") String cookieValue) {
+    public ResponseEntity<Object> update_project(@RequestBody ProjectChangeDataSchema request, @RequestHeader(value = "Authorization", defaultValue = "None") String cookieValue) {
         if (cookieValue.equals("None")) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token!");
         }
 
-        UUID id = auth.fromJwtToId(cookieValue);
-        Optional<UserEntity> maybe_user = auth.findUserById(id);
+        UUID id = userService.fromJwtToId(cookieValue);
+        Optional<UserEntity> maybe_user = userService.findUserById(id);
 
         if (maybe_user.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User doesn`t exist!");
         }
 
         UserEntity user = maybe_user.get();
-        Date date = auth.fromJwtToTimeStamp(cookieValue);
+        Date date = userService.fromJwtToTimeStamp(cookieValue);
 
         if (new Date(user.getLastPasswordChange()).compareTo(date) >= 0) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token!");
         }
 
-        Optional<ProjectEntity> maybe_project = projects.findProjectById(UUID.fromString(request.getProject_id()));
+        Optional<ProjectEntity> maybe_project = projectService.findProjectById(UUID.fromString(request.getProject_id()));
 
         if (maybe_project.isEmpty()) {
             return ResponseEntity.ok("");
@@ -188,36 +210,36 @@ public class MeController {
             project.setName(request.getName().get());
         }
 
-        projects.addProject(project);
+        projectService.addProject(project);
 
-        return ResponseEntity.ok("");
+        return ResponseEntity.ok(project);
 
     }
 
     @GetMapping("/project")
-    public ResponseEntity<Object> my_projects(@CookieValue(value = "Authorization", defaultValue = "None") String cookieValue) {
+    public ResponseEntity<Object> my_projects(@RequestHeader(value = "Authorization", defaultValue = "None") String cookieValue) {
         if (cookieValue.equals("None")) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token!");
         }
 
-        UUID id = auth.fromJwtToId(cookieValue);
-        Optional<UserEntity> maybe_user = auth.findUserById(id);
+        UUID id = userService.fromJwtToId(cookieValue);
+        Optional<UserEntity> maybe_user = userService.findUserById(id);
 
         if (maybe_user.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User doesn`t exist!");
         }
 
         UserEntity user = maybe_user.get();
-        Date date = auth.fromJwtToTimeStamp(cookieValue);
+        Date date = userService.fromJwtToTimeStamp(cookieValue);
 
         if (new Date(user.getLastPasswordChange()).compareTo(date) >= 0) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token!");
         }
 
-        List<ProjectEntity> all_projects = projects.findAll();
+        List<ProjectEntity> all_projects = projectService.findAll();
         List<ProjectEntity> needed_projects = new ArrayList<>();
         for (var project : all_projects) {
-            List<MemberEntity> members = projects.getMembersById(project.getId());
+            List<MemberEntity> members = projectService.getMembersById(project.getId());
             boolean find = false;
             for (MemberEntity member : members) {
                 if (member.getUser().getId().equals(user.getId())) {

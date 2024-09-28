@@ -1,6 +1,7 @@
 package com.dripteam.innoBackend.entities;
 
 import jakarta.persistence.*;
+
 import lombok.Data;
 import java.util.UUID;
 
@@ -15,7 +16,7 @@ public class ProjectEntity {
     private String name;
     @Column(name = "description")
     private String description;
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "creator_id", referencedColumnName = "id")
     private UserEntity creator;
 }
