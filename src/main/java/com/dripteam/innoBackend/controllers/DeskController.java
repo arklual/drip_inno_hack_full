@@ -13,7 +13,7 @@ import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
 
-@CrossOrigin(origins = "*", allowCredentials = "true")
+
 @RestController
 @RequestMapping("/desk")
 @AllArgsConstructor

@@ -18,7 +18,6 @@ import java.util.UUID;
 @RestController
 @AllArgsConstructor
 @RequestMapping("/projects")
-@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true",originPatterns = "*")
 public class ProjectsController {
     private AppEmailService notification;
     private ProjectService service;

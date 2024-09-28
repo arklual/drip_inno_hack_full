@@ -14,7 +14,6 @@ import java.util.*;
 @RestController
 @RequestMapping("/me")
 @AllArgsConstructor
-@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true",originPatterns = "*")
 public class MeController {
     private UserService auth;
     private ProjectService projects;
