@@ -82,4 +82,36 @@ public class DeskController {
 
         return ResponseEntity.ok("");
     }
+
+    @PutMapping("/")
+    public  ResponseEntity<Object> update_project(@RequestBody DeskChangeDataSchema request, @CookieValue(value = "Authorization", defaultValue = "None") String cookieValue){
+        if (cookieValue.equals("None")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token!");
+        }
+
+        UUID id = auth.fromJwtToId(cookieValue);
+        Optional<UserEntity> maybe_user = auth.findUserById(id);
+
+        if (maybe_user.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User doesn`t exist!");
+        }
+
+        UserEntity user = maybe_user.get();
+        Date date = auth.fromJwtToTimeStamp(cookieValue);
+
+        if (new Date(user.getLastPasswordChange()).compareTo(date) >= 0) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token!");
+        }
+
+        Optional<DeskEntity> maybe_desk = deskService.findDeskById(UUID.fromString(request.getDesk_id()));
+
+        if (maybe_desk.isEmpty()) {
+            return ResponseEntity.ok("");
+        }
+        DeskEntity desk = maybe_desk.get();
+        desk.setTitle(request.getName());
+        deskService.addDesk(desk);
+        return ResponseEntity.ok("");
+
+    }
 }
