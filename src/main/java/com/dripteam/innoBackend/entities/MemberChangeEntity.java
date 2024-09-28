@@ -8,7 +8,7 @@ import java.util.UUID;
 
 @Entity
 @Data
-public class ChangeMember {
+public class MemberChangeEntity {
     enum TypeOfChanging {
         DELETE,
         ADD,

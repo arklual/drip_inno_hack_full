@@ -13,8 +13,9 @@ public class ProjectEntity {
     private UUID id;
     private String name;
     private String description;
+    @Enumerated(EnumType.STRING)
     private Status status;
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "userId", referencedColumnName = "id")
-    private UserEntity user;
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "creatorId", referencedColumnName = "id")
+    private UserEntity creator;
 }
