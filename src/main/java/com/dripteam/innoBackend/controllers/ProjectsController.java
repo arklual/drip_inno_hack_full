@@ -7,6 +7,8 @@ import com.dripteam.innoBackend.services.ProjectService;
 import com.dripteam.innoBackend.services.UserService;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import org.hibernate.envers.AuditReader;
+import org.hibernate.envers.AuditReaderFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -73,7 +75,7 @@ public class ProjectsController {
 
         invitationService.addInvitation(invitation);
 
-        String link = "https://localhost:5137/" + invitation.getId();
+        String link = "http://localhost:5173/" + invitation.getId();
         emailService.sendSimpleEmail(request.getEmail(), "Invite link:", link);
 
         return ResponseEntity.ok("");
@@ -198,7 +200,6 @@ public class ProjectsController {
         response.setCreator(user);
         response.setDesks(desks);
         response.setMembers(members);
-
         return ResponseEntity.ok(response);
     }
 

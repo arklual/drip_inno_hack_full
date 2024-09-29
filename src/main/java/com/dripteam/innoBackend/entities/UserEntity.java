@@ -2,10 +2,12 @@ package com.dripteam.innoBackend.entities;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.Data;
+import org.hibernate.envers.Audited;
+
+
 import java.util.UUID;
 
 import java.util.Date;
-
 
 @Data
 @Entity

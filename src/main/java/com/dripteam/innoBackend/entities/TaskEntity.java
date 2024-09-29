@@ -2,10 +2,11 @@ package com.dripteam.innoBackend.entities;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.envers.Audited;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.UUID;
+
 
 @Entity
 @Data

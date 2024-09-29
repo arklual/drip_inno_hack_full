@@ -2,8 +2,10 @@ package com.dripteam.innoBackend.entities;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.envers.Audited;
 
 import java.util.UUID;
+
 
 @Entity
 @Data
@@ -16,5 +18,4 @@ public class DeskEntity {
     @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "project_id", referencedColumnName = "id")
     private ProjectEntity project;
-
 }
