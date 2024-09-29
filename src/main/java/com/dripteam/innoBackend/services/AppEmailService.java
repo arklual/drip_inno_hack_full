@@ -17,7 +17,7 @@ public class AppEmailService {
         simpleMailMessage.setTo(toAddress);
         simpleMailMessage.setSubject(subject);
         simpleMailMessage.setText(message);
-        simpleMailMessage.setFrom("noreply@noreply-drip-hack.bizml.ru");
+        simpleMailMessage.setFrom("admin@idealpick.ru");
         javaMailSender.send(simpleMailMessage); // переписать на HTML
     }
 }

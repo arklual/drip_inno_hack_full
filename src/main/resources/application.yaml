@@ -16,10 +16,10 @@ spring:
       hibernate:
         format_sql: true
   mail:
-    host: smtp.mail.ru
-    port: 587
-    username: "noreply@noreply-drip-hack.bizml.ru"
-    password: "DvjhGmkDF8FG4skqdabg"
+    host: smtp.beget.ru
+    port: 25
+    username: "admin@idealpick.ru"
+    password: "qF8-5Aq-w2c-T3Y"
     properties:
       mail.smtp.auth: true
       mail.smtp.starttls.enable: true
