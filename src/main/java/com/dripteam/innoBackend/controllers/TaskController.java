@@ -66,6 +66,8 @@ public class TaskController {
         task.setCreator(user);
         task.setDesk(desk);
         task.setWorker(worker);
+        task.setStart(request.getStart());
+        task.setEnd(request.getEnd());
 
         taskService.addTask(task);
         emailService.sendSimpleEmail(request.getWorkerEmail(), "Новая задача:", "Владелец проекта " + user.getEmail() + " поставил вам задачу " + task.getName() + " на доске " + desk.getTitle() + ".\nУдачного выполнения!");

@@ -18,6 +18,6 @@ public class AppEmailService {
         simpleMailMessage.setSubject(subject);
         simpleMailMessage.setText(message);
         simpleMailMessage.setFrom("noreply@noreply-drip-hack.bizml.ru");
-        javaMailSender.send(simpleMailMessage);
+        javaMailSender.send(simpleMailMessage); // переписать на HTML
     }
 }

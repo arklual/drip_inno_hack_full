@@ -50,7 +50,7 @@ public class DeskController {
         }
         desk.setProject(maybe_project.get());
         deskService.addDesk(desk);
-        return ResponseEntity.status(HttpStatus.CREATED).body("");
+        return ResponseEntity.status(HttpStatus.CREATED).body(desk);
     }
 
     @DeleteMapping("/")
@@ -113,7 +113,7 @@ public class DeskController {
         DeskEntity desk = maybe_desk.get();
         desk.setTitle(request.getName());
         deskService.addDesk(desk);
-        return ResponseEntity.ok("");
+        return ResponseEntity.ok(desk);
 
     }
 }

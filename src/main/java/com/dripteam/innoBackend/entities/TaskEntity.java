@@ -3,17 +3,23 @@ package com.dripteam.innoBackend.entities;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
 @Data
-@Table(name= "tasks")
+@Table(name = "tasks")
 public class TaskEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
     @Column(name = "name")
     private String name;
+    @Column(name = "start_data")
+    private LocalDate start;
+    @Column(name = "end_data")
+    private LocalDate end;
     @Column(name = "description")
     private String description;
     @Enumerated(EnumType.ORDINAL)
@@ -27,4 +33,5 @@ public class TaskEntity {
     @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "desk_id", referencedColumnName = "id")
     private DeskEntity desk;
+
 }
