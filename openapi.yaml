@@ -1,0 +1,949 @@
+openapi: 3.0.0
+info:
+  title: InnoBackend API
+  version: 1.0.0
+paths:
+  /auth/login:
+    post:
+      tags:
+        - auth
+      summary: User login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+              required:
+                - email
+                - password
+      responses:
+        '200':
+          description: Successful login
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+        '401':
+          description: Invalid password
+          content:
+            application/json:
+              schema:
+                type: string
+        '404':
+          description: User doesn't exist
+          content:
+            application/json:
+              schema:
+                type: string
+  /auth/registration:
+    post:
+      tags:
+        - auth
+      summary: User registration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+              required:
+                - email
+      responses:
+        '201':
+          description: User created successfully
+        '409':
+          description: User already exists
+          content:
+            application/json:
+              schema:
+                type: string
+  /desk/:
+    post:
+      tags:
+        - desk
+      summary: Create a new desk
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                projectId:
+                  type: string
+                  format: uuid
+              required:
+                - name
+                - projectId
+      responses:
+        '201':
+          description: Desk created successfully
+        '401':
+          description: Invalid token
+          content:
+            application/json:
+              schema:
+                type: string
+        '404':
+          description: User or Project doesn't exist
+          content:
+            application/json:
+              schema:
+                type: string
+    delete:
+      tags:
+        - desk
+      summary: Delete an existing desk
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                desk_id:
+                  type: string
+                  format: uuid
+              required:
+                - desk_id
+      responses:
+        '200':
+          description: Desk deleted successfully or not found
+        '401':
+          description: Invalid token
+          content:
+            application/json:
+              schema:
+                type: string
+        '404':
+          description: User doesn't exist
+          content:
+            application/json:
+              schema:
+                type: string
+    put:
+      tags:
+        - desk
+      summary: Update an existing desk
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                desk_id:
+                  type: string
+                  format: uuid
+                name:
+                  type: string
+              required:
+                - desk_id
+                - name
+      responses:
+        '200':
+          description: Desk updated successfully
+        '401':
+          description: Invalid token
+          content:
+            application/json:
+              schema:
+                type: string
+        '404':
+          description: User or Desk doesn't exist
+          content:
+            application/json:
+              schema:
+                type: string
+  /desk/history:
+  
+    get:
+      tags:
+        - desk
+      summary: Get history of task revisions
+      operationId: getHistory
+      parameters:
+        - name: desk_id
+          in: query
+          required: true
+          description: The ID of the desk to retrieve task revision history for
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of task revision history
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: array
+                  items:
+                    type: object
+                    description: Task entity with revision info
+                    properties:
+                      serrTask:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            format: uuid
+                          name:
+                            type: string
+                          start:
+                            type: string
+                            format: date-time
+                          end:
+                            type: string
+                            format: date-time
+                          description:
+                            type: string
+                          status:
+                            type: string
+                          creator_id:
+                            type: string
+                            format: uuid
+                          worker_id:
+                            type: string
+                            format: uuid
+                          desk_id:
+                            type: string
+                            format: uuid
+                          revision_type:
+                            type: string
+                      revisionInfo:
+                        type: object
+                        properties:
+                          revision_id:
+                            type: string
+                          revision_timestamp:
+                            type: string
+                            format: date-time
+        '400':
+          description: Invalid request
+  /project/invite/{project_id}:
+    post:
+      tags:
+        - project
+      summary: Invite a user to a project
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+              required:
+                - email
+      responses:
+        '200':
+          description: Invitation sent successfully
+        '401':
+          description: Invalid token
+          content:
+            application/json:
+              schema:
+                type: string
+        '403':
+          description: User is not the creator of the project
+          content:
+            application/json:
+              schema:
+                type: string
+        '404':
+          description: User or Project not found
+          content:
+            application/json:
+              schema:
+                type: string
+  /project/apply-invite/{uuid}:
+    post:
+      tags:
+        - project
+      summary: Apply to join a project via invitation
+      parameters:
+        - name: uuid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '201':
+          description: Successfully joined the project
+        '401':
+          description: Invalid token
+          content:
+            application/json:
+              schema:
+                type: string
+        '404':
+          description: User or Invitation not found
+          content:
+            application/json:
+              schema:
+                type: string
+  /project/remove/{project_id}:
+    delete:
+      tags:
+        - project
+      summary: Remove a user from a project
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: User removed from project successfully
+        '401':
+          description: Invalid token
+          content:
+            application/json:
+              schema:
+                type: string
+        '404':
+          description: User or Project not found
+          content:
+            application/json:
+              schema:
+                type: string
+  /project/{project_id}:
+    get:
+      tags:
+        - project
+      summary: Get project details
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Project details retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  name:
+                    type: string
+                  description:
+                    type: string
+                  creator:
+                    $ref: '#/components/schemas/UserEntity'
+                  desks:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/DeskEntity'
+                  members:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/MemberEntity'
+        '401':
+          description: Invalid token
+          content:
+            application/json:
+              schema:
+                type: string
+        '404':
+          description: User or Project not found
+          content:
+            application/json:
+              schema:
+                type: string
+  /task/:
+    post:
+      tags:
+        - task
+      summary: Create a new task
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                deskId:
+                  type: string
+                  format: uuid
+                workerEmail:
+                  type: string
+                  format: email
+              required:
+                - name
+                - deskId
+                - workerEmail
+      responses:
+        '201':
+          description: Task created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  name:
+                    type: string
+                  description:
+                    type: string
+                  status:
+                    type: string
+                  creator:
+                    $ref: '#/components/schemas/UserEntity'
+                  desk:
+                    $ref: '#/components/schemas/DeskEntity'
+                  worker:
+                    $ref: '#/components/schemas/UserEntity'
+        '401':
+          description: Invalid token
+          content:
+            application/json:
+              schema:
+                type: string
+        '404':
+          description: User or Desk not found
+          content:
+            application/json:
+              schema:
+                type: string
+ 
+    delete:
+      tags:
+        - task
+      summary: Delete a task
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                taskId:
+                  type: string
+                  format: uuid
+              required:
+                - taskId
+      responses:
+        '200':
+          description: Task deleted successfully
+        '401':
+          description: Invalid token
+          content:
+            application/json:
+              schema:
+                type: string
+        '404':
+          description: User or Task not found
+          content:
+            application/json:
+              schema:
+                type: string
+    put:
+      tags:
+        - task
+      summary: Update a task
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                taskId:
+                  type: string
+                  format: uuid
+                name:
+                  type: string
+                  nullable: true
+                description:
+                  type: string
+                  nullable: true
+                status:
+                  type: string
+                  nullable: true
+              required:
+                - taskId
+      responses:
+        '200':
+          description: Task updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  name:
+                    type: string
+                  description:
+                    type: string
+                  status:
+                    type: string
+                  creator:
+                    $ref: '#/components/schemas/UserEntity'
+                  desk:
+                    $ref: '#/components/schemas/DeskEntity'
+                  worker:
+                    $ref: '#/components/schemas/UserEntity'
+        '401':
+          description: Invalid token
+          content:
+            application/json:
+              schema:
+                type: string
+        '404':
+          description: User or Task not found
+          content:
+            application/json:
+              schema:
+                type: string
+  /task/{desk_id}:
+    get:
+      tags:
+        - task  
+      summary: Get tasks for a specific desk
+      operationId: getTasks
+      parameters:
+        - name: desk_id
+          in: path
+          required: true
+          description: The ID of the desk to retrieve tasks for
+          schema:
+            type: string
+        - name: Authorization
+          in: header
+          required: false
+          description: Authorization token in the request header
+          schema:
+            type: string
+            default: None
+      responses:
+        '200':
+          description: List of tasks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TaskEntity'
+        '401':
+          description: Unauthorized - Invalid or expired token
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Invalid token!"
+        '404':
+          description: User not found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "User doesn’t exist!"
+      security:
+        - bearerAuth: []
+  
+  /me/:
+    get:
+      summary: Get current user details
+      operationId: getMe
+      tags:
+        - User
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          description: Bearer token for authentication
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserEntity'
+        '401':
+          description: Unauthorized - Invalid token
+          content:
+            text/plain:
+              schema:
+                type: string
+        '404':
+          description: User not found
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  /me/change-password:
+    post:
+      summary: Change user password
+      operationId: changePassword
+      tags:
+        - User
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          description: Bearer token for authentication
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserChangePasswordSchema'
+      responses:
+        '200':
+          description: Password changed successfully
+        '401':
+          description: Unauthorized - Invalid token or password
+          content:
+            text/plain:
+              schema:
+                type: string
+        '404':
+          description: User not found
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  /me/change-data:
+    put:
+      summary: Change user data
+      operationId: changeData
+      tags:
+        - User
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          description: Bearer token for authentication
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserChangeDataSchema'
+      responses:
+        '200':
+          description: User data changed successfully
+        '401':
+          description: Unauthorized - Invalid token
+          content:
+            text/plain:
+              schema:
+                type: string
+        '404':
+          description: User not found
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  /me/project:
+    post:
+      summary: Create a new project
+      operationId: createProject
+      tags:
+        - Project
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          description: Bearer token for authentication
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectCreateSchema'
+      responses:
+        '201':
+          description: Project created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectEntity'
+        '401':
+          description: Unauthorized - Invalid token
+          content:
+            text/plain:
+              schema:
+                type: string
+        '404':
+          description: User not found
+          content:
+            text/plain:
+              schema:
+                type: string
+
+    delete:
+      summary: Delete a project
+      operationId: deleteProject
+      tags:
+        - Project
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          description: Bearer token for authentication
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectDeleteSchema'
+      responses:
+        '200':
+          description: Project deleted successfully
+        '401':
+          description: Unauthorized - Invalid token
+          content:
+            text/plain:
+              schema:
+                type: string
+        '404':
+          description: User or project not found
+          content:
+            text/plain:
+              schema:
+                type: string
+
+    put:
+      summary: Update project data
+      operationId: updateProject
+      tags:
+        - Project
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          description: Bearer token for authentication
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectChangeDataSchema'
+      responses:
+        '200':
+          description: Project updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectEntity'
+        '401':
+          description: Unauthorized - Invalid token
+          content:
+            text/plain:
+              schema:
+                type: string
+        '404':
+          description: User or project not found
+          content:
+            text/plain:
+              schema:
+                type: string
+
+    get:
+      summary: Get user's projects
+      operationId: myProjects
+      tags:
+        - Project
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          description: Bearer token for authentication
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Projects retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProjectEntity'
+        '401':
+          description: Unauthorized - Invalid token
+          content:
+            text/plain:
+              schema:
+                type: string
+        '404':
+          description: User not found
+          content:
+            text/plain:
+              schema:
+                type: string
+components:
+  schemas:
+   
+    UserEntity:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+        birthDate:
+          type: string
+          format: date
+
+    UserChangePasswordSchema:
+      type: object
+      properties:
+        old_password:
+          type: string
+        new_password:
+          type: string
+
+    UserChangeDataSchema:
+      type: object
+      properties:
+        first_name:
+          type: string
+        last_name:
+          type: string
+        date_of_birth:
+          type: string
+          format: date
+
+    ProjectCreateSchema:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+
+    ProjectDeleteSchema:
+      type: object
+      properties:
+        project_id:
+          type: string
+          format: uuid
+
+    ProjectChangeDataSchema:
+      type: object
+      properties:
+        project_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+
+    ProjectEntity:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        creator:
+          $ref: '#/components/schemas/UserEntity'
+    
+    DeskEntity:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        # Add other desk properties as needed
+    MemberEntity:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        role:
+          type: string
+        user:
+          $ref: '#/components/schemas/UserEntity'
+    TaskEntity:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        description:
+          type: string
+        status:
+          type: string
+        deskId:
+          type: string
+          format: uuid
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
