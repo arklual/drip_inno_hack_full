@@ -5,5 +5,5 @@ import lombok.Data;
 @Data
 public class DeskCreateSchema {
     private String name;
-    private String projectId;;
+    private String projectId;
 }

@@ -22,8 +22,6 @@ import java.util.UUID;
 @AllArgsConstructor
 public class DeskService {
     private DeskRepository deskRepository;
-    private EntityManager entityManager;
-
 
     public DeskEntity addDesk(DeskEntity desk) {
         deskRepository.save(desk);
@@ -37,9 +35,4 @@ public class DeskService {
     public Optional<DeskEntity> findDeskById(UUID id) {
         return deskRepository.findById(id);
     }
-        public List<Number> getHistory(UUID project_id){
-            AuditReader auditReader = AuditReaderFactory.get(entityManager);
-            List<Number> revisions = auditReader.getRevisions(DeskEntity.class, project_id);
-            return revisions;
-     }
 }

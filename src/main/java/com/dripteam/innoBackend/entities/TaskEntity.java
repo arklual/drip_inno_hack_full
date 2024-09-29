@@ -11,6 +11,7 @@ import java.util.UUID;
 @Entity
 @Data
 @Table(name = "tasks")
+@Audited
 public class TaskEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

@@ -12,6 +12,7 @@ import java.util.Date;
 @Data
 @Entity
 @Table(name= "users")
+@Audited
 public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

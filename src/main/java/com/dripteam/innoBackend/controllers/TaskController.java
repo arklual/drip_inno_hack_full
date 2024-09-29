@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -108,7 +109,9 @@ public class TaskController {
         return ResponseEntity.ok("");
     }
 
+    @PutMapping("/")
     public ResponseEntity<Object> updateTask(@RequestBody TaskUpdateSchema request, @RequestHeader(value = "Authorization", defaultValue = "None") String cookieValue) {
+
         if (cookieValue.equals("None")) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token!");
         }
@@ -146,10 +149,40 @@ public class TaskController {
         if (request.getStatus().isPresent()) {
             task.setStatus(request.getStatus().get());
         }
-
+//        System.out.println(task.getName());
         taskService.addTask(task);
+        emailService.sendSimpleEmail(
+                task.getWorker().getEmail(),
+                "New task:",
+                "Your task was changed!"
+        );
 
         return ResponseEntity.ok(task);
 
+    }
+
+    @GetMapping("/{desk_id}")
+    public ResponseEntity<Object> getTasks(@PathVariable String desk_id, @RequestHeader(value = "Authorization", defaultValue = "None") String cookieValue) {
+        if (cookieValue.equals("None")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token!");
+        }
+
+        UUID id = userService.fromJwtToId(cookieValue);
+        Optional<UserEntity> maybe_user = userService.findUserById(id);
+
+        if (maybe_user.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User doesn`t exist!");
+        }
+
+        UserEntity user = maybe_user.get();
+        Date date = userService.fromJwtToTimeStamp(cookieValue);
+
+        if (new Date(user.getLastPasswordChange()).compareTo(date) >= 0) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token!");
+        }
+
+        List<TaskEntity> tasks = taskService.getByDeskId(UUID.fromString(desk_id));
+
+        return ResponseEntity.ok(tasks);
     }
 }

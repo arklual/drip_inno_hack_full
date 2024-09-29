@@ -10,6 +10,7 @@ import java.util.UUID;
 @Entity
 @Data
 @Table(name = "desks")
+@Audited
 public class DeskEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

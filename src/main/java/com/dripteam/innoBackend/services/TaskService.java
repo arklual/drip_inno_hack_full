@@ -6,6 +6,7 @@ import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -26,6 +27,10 @@ public class TaskService {
 
     public void deleteTask(TaskEntity task){
         taskRepository.delete(task);
+    }
+
+    public List<TaskEntity> getByDeskId(UUID id){
+        return taskRepository.findByDeskId(id);
     }
 
 }
